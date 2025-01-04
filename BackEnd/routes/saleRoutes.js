@@ -1,7 +1,7 @@
 const express = require('express');
 const Sale = require('../models/Sale');
 const Good = require('../models/Good');
-
+const { getCheckWithMaxItemsByProducer } = require('../services/saleService');
 const salesRouter = express.Router();
 
 salesRouter.get('/', async (req, res) => {
@@ -45,6 +45,20 @@ salesRouter.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to delete sale' });
+  }
+});
+
+salesRouter.get('/producer/maxitems', async (req, res) => {
+  const { producerName } = req.query;
+  if (!producerName) {
+    return res.status(400).json({ error: 'Параметр producerName є обов’язковим' });
+  }
+  try {
+    const result = await getCheckWithMaxItemsByProducer(producerName);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Помилка при отриманні даних' });
   }
 });
 

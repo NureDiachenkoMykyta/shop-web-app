@@ -1,7 +1,9 @@
 const express = require('express');
 const Department = require('../models/Department');
-
+const { updateDescriptionByDepartment } = require('../services/departmentService');
 const departmentsRouter = express.Router();
+const { countGoodsInDepartment } = require('../services/goodService');
+
 
 departmentsRouter.get('/', async (req, res) => {
   try {
@@ -44,6 +46,36 @@ departmentsRouter.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to delete department' });
+  }
+});
+
+departmentsRouter.put('/:id/update-desc', async (req, res) => {
+  const deptId = parseInt(req.params.id, 10);
+  if (!deptId) {
+    return res.status(400).json({ error: 'Невірний ідентифікатор відділу' });
+  }
+
+  try {
+    await updateDescriptionByDepartment(deptId);
+    res.json({ message: `Опис товарів у відділі ${deptId} оновлено.` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Помилка при оновленні опису' });
+  }
+});
+
+departmentsRouter.get('/:id/goods-count', async (req, res) => {
+  const deptId = parseInt(req.params.id, 10);
+  if (!deptId) {
+    return res.status(400).json({ error: 'Невірний ідентифікатор відділу' });
+  }
+
+  try {
+    const count = await countGoodsInDepartment(deptId);
+    res.json({ deptId, goodsCount: count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Помилка при підрахунку товарів у відділі' });
   }
 });
 

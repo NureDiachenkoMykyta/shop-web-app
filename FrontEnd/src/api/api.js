@@ -21,3 +21,18 @@ export const fetchWorkers = () => axios.get(`${API_BASE_URL}/workers`);
 export const addWorker = (worker) => axios.post(`${API_BASE_URL}/workers`, worker);
 export const updateWorker = (id, worker) => axios.put(`${API_BASE_URL}/workers/${id}`, worker);
 export const deleteWorker = (id) => axios.delete(`${API_BASE_URL}/workers/${id}`);
+
+
+export const updateDepartmentDescriptions = (deptId) => {
+    return axios.put(`${API_BASE_URL}/departments/${deptId}/update-desc`);
+};
+  
+export const fetchMaxItemsCheckByProducer = (producerName) => {
+return axios.get(`${API_BASE_URL}/sales/producer/maxitems`, {
+    params: { producerName },
+});
+};
+
+export const fetchGoodsCountInDepartment = (deptId) => {
+return axios.get(`${API_BASE_URL}/departments/${deptId}/goods-count`);
+};

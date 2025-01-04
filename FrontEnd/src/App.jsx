@@ -3,7 +3,9 @@ import {
   fetchGoods, addGood, updateGood, deleteGood,
   fetchDepartments, addDepartment, updateDepartment, deleteDepartment,
   fetchSales, addSale, updateSale, deleteSale,
-  fetchWorkers, addWorker, updateWorker, deleteWorker,
+  fetchWorkers, addWorker, updateWorker, deleteWorker, updateDepartmentDescriptions,
+  fetchMaxItemsCheckByProducer,
+  fetchGoodsCountInDepartment,
 } from './api/api';
 import GoodsList from './components/Goods/GoodsList';
 import AddGood from './components/Goods/AddGood';
@@ -30,6 +32,23 @@ function App() {
   const [editSale, setEditSale] = useState(null);
   const [editWorker, setEditWorker] = useState(null);
 
+  const [producerName, setProducerName] = useState('');
+  const [maxItemsChecks, setMaxItemsChecks] = useState([]);
+
+  const handleGetMaxItemsByProducer = async () => {
+    if (!producerName.trim()) {
+      alert('Producer name cannot be empty.');
+      return;
+    }
+    try {
+      const response = await fetchMaxItemsCheckByProducer(producerName);
+      setMaxItemsChecks(response.data); 
+    } catch (error) {
+      console.error(error);
+      alert('Error retrieving checks with the maximum number of goods.');
+    }
+  };
+
   const loadAllData = async () => {
     try {
       const [goodsData, departmentsData, salesData, workersData] = await Promise.all([
@@ -51,13 +70,13 @@ function App() {
     loadAllData();
   }, []);
 
-  // Функции для Goods
+  // Goods Functions
   const handleAddGood = async (good) => {
     try {
       await addGood(good);
       loadAllData();
     } catch (error) {
-      console.error('Error adding good:', error);
+      console.error('Error adding a good:', error);
     }
   };
 
@@ -66,7 +85,7 @@ function App() {
       await updateGood(id, good);
       loadAllData();
     } catch (error) {
-      console.error('Error updating good:', error);
+      console.error('Error updating a good:', error);
     }
   };
 
@@ -75,17 +94,17 @@ function App() {
       await deleteGood(id);
       loadAllData();
     } catch (error) {
-      console.error('Error deleting good:', error);
+      console.error('Error deleting a good:', error);
     }
   };
 
-  // Функции для Departments
+  // Department Functions
   const handleAddDepartment = async (department) => {
     try {
       await addDepartment(department);
       loadAllData();
     } catch (error) {
-      console.error('Error adding department:', error);
+      console.error('Error adding a department:', error);
     }
   };
 
@@ -94,7 +113,7 @@ function App() {
       await updateDepartment(id, department);
       loadAllData();
     } catch (error) {
-      console.error('Error updating department:', error);
+      console.error('Error updating a department:', error);
     }
   };
 
@@ -103,17 +122,17 @@ function App() {
       await deleteDepartment(id);
       loadAllData();
     } catch (error) {
-      console.error('Error deleting department:', error);
+      console.error('Error deleting a department:', error);
     }
   };
 
-  // Функции для Sales
+  // Sales Functions
   const handleAddSale = async (sale) => {
     try {
       await addSale(sale);
       loadAllData();
     } catch (error) {
-      console.error('Error adding sale:', error);
+      console.error('Error adding a sale:', error);
     }
   };
 
@@ -122,7 +141,7 @@ function App() {
       await updateSale(id, sale);
       loadAllData();
     } catch (error) {
-      console.error('Error updating sale:', error);
+      console.error('Error updating a sale:', error);
     }
   };
 
@@ -131,17 +150,17 @@ function App() {
       await deleteSale(id);
       loadAllData();
     } catch (error) {
-      console.error('Error deleting sale:', error);
+      console.error('Error deleting a sale:', error);
     }
   };
 
-  // Функции для Workers
+  // Worker Functions
   const handleAddWorker = async (worker) => {
     try {
       await addWorker(worker);
       loadAllData();
     } catch (error) {
-      console.error('Error adding worker:', error);
+      console.error('Error adding a worker:', error);
     }
   };
 
@@ -150,7 +169,7 @@ function App() {
       await updateWorker(id, worker);
       loadAllData();
     } catch (error) {
-      console.error('Error updating worker:', error);
+      console.error('Error updating a worker:', error);
     }
   };
 
@@ -159,7 +178,29 @@ function App() {
       await deleteWorker(id);
       loadAllData();
     } catch (error) {
-      console.error('Error deleting worker:', error);
+      console.error('Error deleting a worker:', error);
+    }
+  };
+
+  const handleUpdateDescription = async (deptId) => {
+    try {
+      await updateDepartmentDescriptions(deptId);
+      loadAllData();
+      alert(`Product descriptions in department ${deptId} were updated successfully!`);
+    } catch (error) {
+      console.error(error);
+      alert('Error updating product descriptions.');
+    }
+  };
+  
+  const handleCountGoods = async (deptId) => {
+    try {
+      const response = await fetchGoodsCountInDepartment(deptId);
+      const { goodsCount } = response.data; 
+      alert(`Department ${deptId} has ${goodsCount} goods.`);
+    } catch (error) {
+      console.error(error);
+      alert('Error counting goods in the department.');
     }
   };
 
@@ -177,7 +218,13 @@ function App() {
         {/* Departments Section */}
         <AddDepartment addDepartment={handleAddDepartment} />
         {editDepartment && <EditDepartment department={editDepartment} updateDepartment={handleUpdateDepartment} setEditDepartment={setEditDepartment} />}
-        <DepartmentsList departments={departments} setEditDepartment={setEditDepartment} deleteDepartment={handleDeleteDepartment} />
+        <DepartmentsList
+        departments={departments}
+        setEditDepartment={setEditDepartment}
+        deleteDepartment={handleDeleteDepartment}
+        handleUpdateDescription={handleUpdateDescription}
+        handleCountGoods={handleCountGoods} 
+      />
 
         {/* Sales Section */}
         <AddSale addSale={handleAddSale} goods={goods} />
@@ -188,6 +235,31 @@ function App() {
         <AddWorker addWorker={handleAddWorker} departments={departments} />
         {editWorker && <EditWorker worker={editWorker} updateWorker={handleUpdateWorker} setEditWorker={setEditWorker} departments={departments} />}
         <WorkersList workers={workers} setEditWorker={setEditWorker} deleteWorker={handleDeleteWorker} />
+
+
+        <section>
+        <h2>Get Checks With Max Items By Producer</h2>
+        <input
+          type="text"
+          placeholder="Enter producer name"
+          value={producerName}
+          onChange={(e) => setProducerName(e.target.value)}
+        />
+        <button onClick={handleGetMaxItemsByProducer}>Get</button>
+
+        {/* Displaying Results */}
+        {maxItemsChecks && maxItemsChecks.length > 0 && (
+          <ul>
+            {maxItemsChecks.map((row, idx) => (
+              <li key={idx}>
+                Check No: {row.check_no || 'N/A'}, Items Count: {row.max_items || 0}, 
+                {row.message && `Message: ${row.message}`}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       </main>
     </div>
   );

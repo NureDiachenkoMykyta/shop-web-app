@@ -1,6 +1,7 @@
+
 import React from 'react';
 
-const DepartmentsList = ({ departments, setEditDepartment, deleteDepartment }) => {
+const DepartmentsList = ({ departments, setEditDepartment, deleteDepartment, handleUpdateDescription, handleCountGoods }) => {
   return (
     <section>
       <h2>Departments List</h2>
@@ -22,6 +23,9 @@ const DepartmentsList = ({ departments, setEditDepartment, deleteDepartment }) =
               <td>
                 <button onClick={() => setEditDepartment(dept)}>Edit</button>
                 <button onClick={() => deleteDepartment(dept.DEPT_ID)}>Delete</button>
+                <button onClick={() => handleUpdateDescription(dept.DEPT_ID)}>Update Descriptions</button>
+
+                <button onClick={() => handleCountGoods(dept.DEPT_ID)}>Count Goods</button>
               </td>
             </tr>
           ))}
